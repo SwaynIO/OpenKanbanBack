@@ -1,26 +1,33 @@
 #!/bin/bash
 
+# Demande des informations de connexion à la base de données
+read -p "Enter your database host (default: localhost): " DB_HOST
+DB_HOST=${DB_HOST:-localhost}
+
+read -p "Enter your database user (default: root): " DB_USER
+DB_USER=${DB_USER:-root}
+
+read -sp "Enter your database password: " DB_PASSWORD
+echo ""
+
+read -p "Enter your database name: " DB_NAME
+
+# Création du fichier .env avec les informations fournies par l'utilisateur
+echo "Creating .env file..."
+echo "DB_HOST=$DB_HOST" > .env
+echo "DB_USER=$DB_USER" >> .env
+echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+echo "DB_NAME=$DB_NAME" >> .env
+echo "JWT_SECRET=mysecret" >> .env
+
 # Installation des dépendances backend
 echo "Installing backend dependencies..."
 npm install
 
-# Création du fichier .env si non existant
-if [ ! -f ".env" ]; then
-    echo "Creating .env file..."
-    echo "DB_HOST=localhost" > .env
-    echo "DB_USER=root" >> .env
-    echo "DB_PASSWORD=yourpassword" >> .env
-    echo "DB_NAME=my_database" >> .env
-    echo "JWT_SECRET=mysecret" >> .env
-fi
-
 # Envoi des tables sur la base de données
 echo "Setting up the database..."
 
-mysql -u root -pyourpassword -e "
-CREATE DATABASE IF NOT EXISTS my_database;
-USE my_database;
-
+mysql -u $DB_USER -p$DB_PASSWORD -h $DB_HOST $DB_NAME -e "
 SET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO';
 START TRANSACTION;
 SET time_zone = '+00:00';
